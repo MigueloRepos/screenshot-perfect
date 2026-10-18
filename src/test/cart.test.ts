@@ -10,7 +10,7 @@ describe("cart rules", () => {
     expect(isValidQty(40, 40)).toBe(true);
   });
   it("caps added quantity at stock", () => {
-    expect(addToCart([{ id: "a", qty: 39 }], "a", 5, 40)[0].qty).toBe(40);
+    expect(addToCart([{ id: "a", qty: 39 }], "a", 5, 40)[0]?.qty).toBe(40);
   });
   it("totals 2 chocolate cakes as 12000 CUP", () => {
     expect(cartTotal([{ id: "cake-chocolate", qty: 2 }], PRODUCTS)).toEqual({ total: 12000, allPriced: true });
