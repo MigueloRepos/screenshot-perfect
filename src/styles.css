@@ -89,7 +89,12 @@
   --brand-blue: oklch(0.65 0.17 250);
   --brand-violet: oklch(0.62 0.2 295);
   --brand-pink: oklch(0.65 0.27 340);
-  --gradient-brand: linear-gradient(90deg, var(--brand-blue), var(--brand-violet), var(--brand-pink));
+  --gradient-brand: linear-gradient(
+    90deg,
+    var(--brand-blue),
+    var(--brand-violet),
+    var(--brand-pink)
+  );
   --shadow-soft: 0 8px 30px -12px oklch(0.2 0.02 300 / 0.18);
   --shadow-cta: 0 8px 20px -8px color-mix(in oklab, var(--primary) 60%, transparent);
   --glass: oklch(1 0 0 / 0.7);
@@ -162,12 +167,40 @@
 }
 @utility no-scrollbar {
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
-@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes pop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.25); } }
-@utility animate-rise { animation: rise 0.45s ease-out both; }
-@utility animate-pop { animation: pop 0.35s ease-out; }
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+}
+@utility animate-rise {
+  animation: rise 0.45s ease-out both;
+}
+@utility animate-pop {
+  animation: pop 0.35s ease-out;
+}
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

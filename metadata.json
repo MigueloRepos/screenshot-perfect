@@ -1,0 +1,6 @@
+{
+  "name": "Screenshot Perfect",
+  "description": "Artisanal bakery ordering application with WhatsApp integration.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

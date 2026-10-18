@@ -13,7 +13,10 @@ describe("cart rules", () => {
     expect(addToCart([{ id: "a", qty: 39 }], "a", 5, 40)[0]?.qty).toBe(40);
   });
   it("totals 2 chocolate cakes as 12000 CUP", () => {
-    expect(cartTotal([{ id: "cake-chocolate", qty: 2 }], PRODUCTS)).toEqual({ total: 12000, allPriced: true });
+    expect(cartTotal([{ id: "cake-chocolate", qty: 2 }], PRODUCTS)).toEqual({
+      total: 12000,
+      allPriced: true,
+    });
   });
   it("flags carts with unpriced products", () => {
     expect(cartTotal([{ id: "cupcake-leche-condensada", qty: 1 }], PRODUCTS).allPriced).toBe(false);
