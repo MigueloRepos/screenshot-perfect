@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Search, ShoppingBag, X, Minus, Plus, Trash2, MessageCircle } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, ShoppingBag, X, Minus, Plus, Trash2, MessageCircle, Home, LayoutGrid } from "lucide-react";
 import { toast } from "sonner";
 import heroImg from "@/assets/hero-cupcake.jpg";
 import { CATEGORIES, PRODUCTS, WHATSAPP_NUMBER, type Product } from "@/data/products";
@@ -51,6 +51,8 @@ function Index() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [bump, setBump] = useState(0);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const catRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     try {
@@ -75,18 +77,18 @@ function Index() {
   const add = (p: Product, qty: number) => {
     setCart((c) => addToCart(c, p.id, qty, p.stock));
     setBump((b) => b + 1);
-    toast.success(`${p.name} añadido al carrito`);
+    toast.success(`${p.name} añadido al pedido`);
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-background pb-16">
+    <div className="mx-auto min-h-screen max-w-5xl bg-background pb-28 md:pb-16">
       <header className="relative h-[228px] overflow-hidden rounded-b-[3rem] md:h-[300px]">
         <img src={heroImg} alt="" aria-hidden width={1024} height={640} className="absolute inset-0 h-full w-full scale-105 object-cover blur-[2px]" />
         <div className="absolute inset-0 bg-glass" />
         <button
           onClick={() => setCartOpen(true)}
           aria-label={`Abrir carrito, ${count} artículos`}
-          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-accent/40 bg-glass text-secondary-foreground shadow-soft backdrop-blur-md transition hover:scale-105"
+          className="absolute right-4 top-4 z-10 hidden md:flex h-11 w-11 items-center justify-center rounded-full border border-accent/40 bg-glass text-secondary-foreground shadow-soft backdrop-blur-md transition hover:scale-105"
         >
           <ShoppingBag className="h-5 w-5" />
           {count > 0 && (
@@ -100,6 +102,7 @@ function Index() {
           <label className="relative w-full max-w-[250px] md:max-w-md">
             <span className="sr-only">Buscar productos</span>
             <input
+              ref={searchRef}
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -111,7 +114,7 @@ function Index() {
         </div>
       </header>
 
-      <section aria-labelledby="cat-title" className="mt-2">
+      <section ref={catRef} aria-labelledby="cat-title" className="mt-2 scroll-mt-4">
         <h2 id="cat-title" className="text-center text-base">Categorias</h2>
         <div role="tablist" className="no-scrollbar mt-4 flex gap-2 overflow-x-auto px-2 md:justify-center">
           {CATEGORIES.map((c) => (
@@ -169,9 +172,39 @@ function Index() {
         ))}
       </main>
 
+      <nav aria-label="Menú principal" className="fixed inset-x-3 bottom-3 z-40 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <div className="grid grid-cols-5 items-end rounded-full border border-border bg-glass px-2 py-1.5 shadow-soft backdrop-blur-xl">
+          <ThumbBtn label="Inicio" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><Home className="h-5 w-5" /></ThumbBtn>
+          <ThumbBtn label="Buscar" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setTimeout(() => searchRef.current?.focus(), 300); }}><Search className="h-5 w-5" /></ThumbBtn>
+          <button
+            onClick={() => openWhatsApp(cart.length ? buildWhatsAppMessage(cart, PRODUCTS) : "Hola, quiero hacer un pedido en Caram & Maranatha.")}
+            aria-label="Pedir por WhatsApp"
+            className="mx-auto -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-cta transition active:scale-95"
+          >
+            <MessageCircle className="h-6 w-6" />
+          </button>
+          <ThumbBtn label="Categorías" onClick={() => catRef.current?.scrollIntoView({ behavior: "smooth" })}><LayoutGrid className="h-5 w-5" /></ThumbBtn>
+          <ThumbBtn label="Pedido" onClick={() => setCartOpen(true)}>
+            <span className="relative">
+              <ShoppingBag className="h-5 w-5" />
+              {count > 0 && <span key={bump} className="animate-pop absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">{count}</span>}
+            </span>
+          </ThumbBtn>
+        </div>
+      </nav>
+
       {selected && <ProductModal product={selected} onClose={() => setSelected(null)} onAdd={add} />}
       {cartOpen && <CartPanel cart={cart} setCart={setCart} onClose={() => setCartOpen(false)} />}
     </div>
+  );
+}
+
+function ThumbBtn({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} className="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] text-muted-foreground transition hover:text-secondary-foreground active:scale-95">
+      {children}
+      <span>{label}</span>
+    </button>
   );
 }
 
@@ -228,7 +261,7 @@ function ProductModal({ product: p, onClose, onAdd }: { product: Product; onClos
       {priced && valid && <p className="mt-2 text-center text-sm font-medium">Total: {formatCUP(p.price * qty)}</p>}
       <div className="mt-6 grid gap-3">
         <button disabled={!valid} onClick={() => { onAdd(p, qty); onClose(); }} className="h-11 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-cta transition active:scale-95 disabled:opacity-50">
-          Añadir al carrito
+          Añadir al pedido
         </button>
         <button disabled={!valid} onClick={direct} className="flex h-11 items-center justify-center gap-2 rounded-full border border-accent text-sm text-secondary-foreground transition hover:bg-secondary disabled:opacity-50">
           <MessageCircle className="h-4 w-4" /> {priced ? "Pedir por WhatsApp" : "Consultar por WhatsApp"}
@@ -246,9 +279,10 @@ function CartPanel({ cart, setCart, onClose }: { cart: CartLine[]; setCart: Reac
 
   return (
     <Overlay onClose={onClose} label="Carrito">
-      <h2 className="text-xl">Tu carrito</h2>
+      <h2 className="text-xl">Tu pedido</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Los pedidos se hacen solo por WhatsApp.</p>
       {cart.length === 0 ? (
-        <p className="py-10 text-center text-muted-foreground">Tu carrito está vacío. ¡Elige algo dulce! 🧁</p>
+        <p className="py-10 text-center text-muted-foreground">Tu pedido está vacío. ¡Elige algo dulce! 🧁</p>
       ) : (
         <>
           <ul className="mt-4 divide-y divide-border">
